@@ -72,20 +72,24 @@ null (a : as) = False
 
 length :: Integral i => [a] -> i
 length [] = 0
-length (a : as) = length (head as : tail as) + 1
+length (a : as) = length (as) + 1
 
 sum :: Num a => [a] -> a
 sum  [] = 0
-sum (a : as) = sum (head as : tail as) 
+sum (n : ns) = sum ns + n
 
 product :: Num a => [a] -> a
-product = undefined
+product [] = 0
+product (a : []) = a
+product (a : as) = product as * a
 
 reverse :: [a] -> [a]
-reverse = undefined
+reverse [] = []
+reverse (x : xs) = reverse xs ++ [x]
 
 (++) :: [a] -> [a] -> [a]
-(++) = undefined
+[] ++ n = n
+(y : ys) ++ n = ( y : (ys ++ n))
 
 -- right-associative for performance!
 -- (what?!)
@@ -93,10 +97,13 @@ infixr 5 ++
 
 -- (snoc is cons written backwards)
 snoc :: a -> [a] -> [a]
-snoc = undefined
+snoc c [] = [c]
+snoc y a = a ++ [y] 
 
 (<:) :: [a] -> a -> [a]
-(<:) = flip snoc
+[] <: c = [c]
+a <: c = a ++ [c]
+
 
 -- different implementation of (++)
 (+++) :: [a] -> [a] -> [a]
@@ -170,7 +177,8 @@ infixl 5 +++
 
 -- checks if the letters of a phrase form a palindrome (see below for examples)
 palindrome :: String -> Bool
-palindrome = undefined
+palindrome [] = False
+-- palindrome (x : xs) = 
 
 {-
 
