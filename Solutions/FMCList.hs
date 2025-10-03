@@ -72,7 +72,7 @@ null (a : as) = False
 
 length :: Integral i => [a] -> i
 length [] = 0
-length (a : as) = length (as) + 1
+length (a : as) = length as + 1
 
 sum :: Num a => [a] -> a
 sum  [] = 0
@@ -83,13 +83,13 @@ product [] = 0
 product (a : []) = a
 product (a : as) = product as * a
 
-reverse :: [a] -> [a]
+reverse :: [a] -> [a] 
 reverse [] = []
 reverse (x : xs) = reverse xs ++ [x]
 
 (++) :: [a] -> [a] -> [a]
 [] ++ n = n
-(y : ys) ++ n = ( y : (ys ++ n))
+(y : ys) ++ n = y : (ys ++ n)
 
 -- right-associative for performance!
 -- (what?!)
