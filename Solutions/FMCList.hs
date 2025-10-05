@@ -60,7 +60,7 @@ write [u,v]     for our u `Cons` (v `Cons` Nil)
 
 head :: [a] -> a
 head [] = undefined
-head (a : as) = a 
+head (a : as) = a
 
 tail :: [a] -> [a]
 tail [] = undefined
@@ -83,7 +83,7 @@ product [] = 0
 product (a : []) = a
 product (a : as) = product as * a
 
-reverse :: [a] -> [a] 
+reverse :: [a] -> [a]
 reverse [] = []
 reverse (x : xs) = reverse xs ++ [x]
 
@@ -98,7 +98,7 @@ infixr 5 ++
 -- (snoc is cons written backwards)
 snoc :: a -> [a] -> [a]
 snoc c [] = [c]
-snoc y a = a ++ [y] 
+snoc y a = a ++ [y]
 
 (<:) :: [a] -> a -> [a]
 [] <: c = [c]
@@ -115,20 +115,59 @@ xs +++ (y:ys) = (xs +++ [y]) +++ ys
 -- (hmm?!)
 infixl 5 +++
 
--- minimum :: Ord a => [a] -> a
--- maximum :: Ord a => [a] -> a
+minimum :: Ord a => [a] -> a
+minimum [] = undefined
+minimum [x] = x
+minimum [x, y] = if x < y then x else y
+minimum (x : xs) = if x < minimum xs then x else minimum xs
+
+maximum :: Ord a => [a] -> a
+maximum [] = undefined
+maximum [x] = x
+maximum [x, y] = if x > y then x else y
+maximum (x : xs) = if x > maximum xs then x else maximum xs
 
 -- take
+take :: Integral i => i -> [a] -> [a]
+take 0 l = []
+take n (x : xs) = if n == length (x : xs) then x : xs else take n (init (x : xs))
+
 -- drop
+drop 0 l = l
+drop n (x : xs) = if length (x : xs) == n then [] else drop (n-1) xs
 
 -- takeWhile
+takeWhile :: (a -> Bool) -> [a] -> [a]
+takeWhile = filter
+
 -- dropWhile
+dropWhile :: (a -> Bool) -> [a] -> [a]
+dropWhile f [] = []
+dropWhile f (x : xs) = if f x then dropWhile f xs else x : dropWhile f xs
 
 -- tails
+tails :: [a] -> [[a]]
+tails [] = []
+tails [a] = [[a], []]
+tails (x : xs) = (x : xs) : tails xs
+
 -- init
+init :: [a] -> [a]
+init [] = []
+init [a] = [a]
+init (x : xs) = reverse (tail (reverse (x : xs)))
+
 -- inits
+inits :: [a] -> [[a]]
+inits [] = []
+inits [a] = [[], [a]]
+inits (x : xs) = inits (init (x : xs)) ++ [x : xs]
 
 -- subsequences
+subsequences :: [a] -> [[a]]
+subsequences [] = []
+subsequences [a] = [[], [a]]
+-- subsequences (x : xs) = 
 
 -- any
 -- all
@@ -146,6 +185,10 @@ infixl 5 +++
 -- (!!)
 
 -- filter
+filter :: (a -> Bool) -> [a] -> [a]
+filter f [] = []
+filter f (x : xs) = if f x then x : filter f xs else filter f xs
+
 -- map
 
 -- cycle
