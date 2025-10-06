@@ -13,7 +13,6 @@ import Prelude
 import qualified Prelude   as P
 import qualified Data.List as L
 import qualified Data.Char as C
-import GHC.Base (Opaque(O))
 
 {- import qualified ... as ... ?
 
@@ -138,16 +137,17 @@ drop n (x : xs) = if length (x : xs) == n then [] else drop (n-1) xs
 
 -- takeWhile
 takeWhile :: (a -> Bool) -> [a] -> [a]
-takeWhile = filter
+takeWhile f [] = []
+takeWhile f (x : xs) = if f x then x : takeWhile f xs else []
 
 -- dropWhile
 dropWhile :: (a -> Bool) -> [a] -> [a]
 dropWhile f [] = []
-dropWhile f (x : xs) = if f x then dropWhile f xs else x : dropWhile f xs
+dropWhile f (x : xs) = if f x then dropWhile f xs else x : xs
 
 -- tails
 tails :: [a] -> [[a]]
-tails [] = []
+tails [] = [[]]
 tails [a] = [[a], []]
 tails (x : xs) = (x : xs) : tails xs
 
@@ -159,30 +159,58 @@ init (x : xs) = reverse (tail (reverse (x : xs)))
 
 -- inits
 inits :: [a] -> [[a]]
-inits [] = []
+inits [] = [[]]
 inits [a] = [[], [a]]
 inits (x : xs) = inits (init (x : xs)) ++ [x : xs]
 
 -- subsequences
 subsequences :: [a] -> [[a]]
-subsequences [] = []
-subsequences [a] = [[], [a]]
--- subsequences (x : xs) = 
+subsequences [] = [[]]
+subsequences (x : xs) = subsequences xs ++ map (x :) (subsequences xs)
 
 -- any
+any :: (a -> Bool) -> [a] -> Bool
+any f [] = False
+any f (x : xs) = f x || any f xs
+
 -- all
+all :: (a -> Bool) -> [a] -> Bool
+all f [] = True
+all f (x : xs) = f x && all f xs
+
+-- aux: istrue
+istrue :: Bool -> Bool
+istrue True = True
+istrue False = False
 
 -- and
+and :: [Bool] -> Bool
+and [] = True
+and (x : xs) = all istrue (x : xs)
+
 -- or
+or :: [Bool] -> Bool
+or [] = False
+or (x : xs) = any istrue (x : xs)
 
 -- concat
+concat :: [[a]] -> [a]
+concat [] = []
+concat (x : xs) = x ++ concat xs
 
 -- elem using the funciton 'any' above
+elem :: Eq a => a -> [a] -> Bool
+elem y = any (==y)
 
 -- elem': same as elem but elementary definition
 -- (without using other functions except (==))
+elem' :: Eq a => a -> [a] -> Bool
+elem' y [] = False
+elem' w (x : xs) = w == x || elem' w xs
 
 -- (!!)
+(!!) :: [a] -> Int -> a
+(x : xs) !! n = if length (x : xs) >= n + 1 then head (reverse (take (n + 1) (x : xs))) else undefined
 
 -- filter
 filter :: (a -> Bool) -> [a] -> [a]
@@ -190,28 +218,81 @@ filter f [] = []
 filter f (x : xs) = if f x then x : filter f xs else filter f xs
 
 -- map
+map :: (a -> b) -> [a] -> [b]
+map f [] = []
+map f (x : xs) = (f x) : map f xs
 
 -- cycle
+cycle :: [a] -> [a]
+cycle [] = undefined
+cycle l = l ++ cycle l
+
 -- repeat
+repeat :: a -> [a]
+repeat a = a : repeat a
+
 -- replicate
+replicate :: Int -> a -> [a]
+replicate 0 a = []
+replicate n a = a : replicate (n-1) a
 
 -- isPrefixOf
+isPrefixOf :: Eq a => [a] -> [a] -> Bool
+isPrefixOf [] l = True
+isPrefixOf xs ys = elem xs (inits ys)
+
 -- isInfixOf
+isInfixOf :: Eq a => [a] -> [a] -> Bool
+isInfixOf xs ys = elem xs (subsequences ys)
+
 -- isSuffixOf
+isSuffixOf :: Eq a => [a] -> [a] -> Bool
+isSuffixOf [] l = True
+isSuffixOf xs ys = elem xs (tails ys)
 
 -- zip
+zip :: [a] -> [b] -> [(a, b)]
+zip a [] = []
+zip [] b = []
+zip (x : xs) (y : ys) = (x, y) : zip xs ys
+
 -- zipWith
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith f a [] = []
+zipWith f [] b = []
+zipWith f (x : xs) (y : ys) = f x y : zipWith f xs ys
 
 -- intercalate
+intercalate :: [a] -> [[a]] -> [a]
+intercalate l [] = []
+intercalate l [[a]] = [a]
+intercalate l (x : xs) = x ++ l ++ intercalate l xs
+
 -- nub
+nub :: Eq a => [a] -> [a]
+nub [] = []
+nub [a] = [a]
+nub (x : xs) = if elem x xs then nub xs else x : nub xs
 
 -- splitAt
 -- what is the problem with the following?:
 -- splitAt n xs  =  (take n xs, drop n xs)
+splitAt :: Int -> [a] -> ([a], [a])
+splitAt 0 l = ([], l)
+splitAt n [] = ([], [])  --The problem was here! The mentioned implementation did not encompass this base.
+splitAt n l = (take n l, drop n l)
 
 -- break
+break :: (a -> Bool) -> [a] -> ([a], [a])
+break f [] = ([], [])
+break f (x : xs) = (takeWhile (not . f) (x : xs) , dropWhile (not . f) ( x : xs))
 
 -- lines
+lines :: String -> [String]
+lines [] = []
+lines [a] = [[a]]
+lines (x : xs) = undefined
+
 -- words
 -- unlines
 -- unwords
@@ -220,8 +301,8 @@ filter f (x : xs) = if f x then x : filter f xs else filter f xs
 
 -- checks if the letters of a phrase form a palindrome (see below for examples)
 palindrome :: String -> Bool
-palindrome [] = False
--- palindrome (x : xs) = 
+palindrome [] = True
+palindrome l = undefined
 
 {-
 
